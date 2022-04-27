@@ -8,7 +8,7 @@
 #
 # See Readme.md on github  https://github.com/gclayburg/synology-diskstation-scripts
 LOG_CONTEXT="-"  #override to add extra stuff to log messages
-ADMIN_DIR=/var/services/homes/admin/dhcp-dns
+SCRIPT_DIR=/var/services/homes/admin/dhcp-dns
 
 date_echo(){
     datestamp=$(date +%F_%T)
@@ -31,11 +31,11 @@ if [ "$1" = "start"  ]; then
     date_echo "poll-dhcp-changes already running."
   else
     date_echo "starting poll-dhcp-changes"
-    LOG_DIR=$ADMIN_DIR/logs
+    LOG_DIR=$SCRIPT_DIR/logs
     if [ ! -d "$LOG_DIR" ]; then
       mkdir -p $LOG_DIR
     fi
-    $ADMIN_DIR/poll-dhcp-changes.sh >>  $LOG_DIR/dhcp-dns.log 2>&1 &
+    $SCRIPT_DIR/poll-dhcp-changes.sh >>  $LOG_DIR/dhcp-dns.log 2>&1 &
   fi
 
 elif [ "$1" = "stop" ]; then
