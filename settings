@@ -1,3 +1,5 @@
 YourNetworkName=garyclayburg.com
 ForwardMasterFile=garyclayburg.com
 ReverseMasterFile=1.168.192.in-addr.arpa
+LogRotate=7
+LogSize=512K
