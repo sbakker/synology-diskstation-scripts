@@ -12,15 +12,16 @@
 #
 
 DFL_LOGSIZE=$(( 512 * 1024 ))
-ROOT_DIR=$(dirname $0)
+SCRIPT_DIR=$(dirname $0)
+LOG_DIR=$SCRIPT_DIR/logs
 
 LogRotate=7
 LogSize=$DFL_LOGSIZE
 
 Main() {
-    [[ -f $ROOT_DIR/settings ]] && source $ROOT_DIR/settings
+    [[ -f $SCRIPT_DIR/settings ]] && source $SCRIPT_DIR/settings
 
-    LogFile=$ROOT_DIR/logs/dhcp-dns.log
+    LogFile=$LOG_DIR/dhcp-dns.log
     LogSize=$(parse_size $LogSize)
 
     curr_size=$(stat -c '%s' $LogFile 2>&1 || echo 0)
