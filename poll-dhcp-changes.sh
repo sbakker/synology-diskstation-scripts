@@ -1,30 +1,38 @@
-#!/bin/sh
+#!/bin/ash
 
+SCRIPT_DIR=$(dirname $0)
+
+WATCH_DIR=/etc/dhcpd
+MAX_BACKOFF=60
+
+LOG_CONTEXT='[info]'
+
+date_echo(){
+    datestamp=$(date +%F_%T)
+    echo "${datestamp} ${LOG_CONTEXT} $*"
+}
+
+date_echo "poll-dhcp-changes.sh starting"
+
+errors=0
 while true; do
-  reload_dns=false
-  if [ -r /etc/dhcpd/dhcpd-leases.log ]; then
-    LOGATIME=`stat /etc/dhcpd/dhcpd-leases.log | grep Modify`
-    if [ "$LOGATIME" != "$LOGLASTATIME" ]; then
-      date
-      LOGLASTATIME=$LOGATIME
-      reload_dns=true
+    changed=$(inotifywait \
+        --quiet \
+        --format '%f' \
+        --event modify,create,delete,move \
+        $WATCH_DIR)
+
+    if test $? -eq 0; then
+        date_echo "$WATCH_DIR/$changed changed - reloading DNS"
+        $SCRIPT_DIR/diskstation_dns_modify.sh
+        errors=0
+    else
+        if test $errors -lt $MAX_BACKOFF; then
+            errors=$((errors + 1))
+        fi
+
+        LOG_CONTEXT='[error]' \
+            date_echo "Error watching $WATCH_DIR -- retrying in $errors secs"
+        sleep $errors
     fi
-  elif [ -r /etc/dhcpd/dhcpd.conf.leases ]; then
-    LEASEATIME=`stat /etc/dhcpd/dhcpd.conf.leases | grep Modify`
-    if [ "$LEASEATIME" != "$LEASELASTATIME" ]; then
-      date
-      LEASELASTATIME=$LEASEATIME
-      reload_dns=true
-    fi
-  else
-    echo "ERROR - No dhcp lease files found.  Is something misconfigured?"
-    exit 1
-  fi
-  if "$reload_dns"; then
-    echo "dhcp leases changed - reloading DNS"
-    /var/services/homes/admin/diskstation_dns_modify.sh
-  fi
-  sleep 5
 done
-
-
