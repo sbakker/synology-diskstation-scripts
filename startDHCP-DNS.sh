@@ -2,6 +2,8 @@
 #nohup ./poll-dhcp-changes.sh >> /volume1/homes/admin/logs/dhcp-dns.log 2>&1 &
 #nohup does not work on synology.  As a workaround, this script should be started from
 # DSM task scheduler.
+SCRIPT_DIR=/var/services/homes/admin/dhcp-dns
+LOG_DIR=$SCRIPT_DIR/logs
 LOG_CONTEXT="-"  #override to add extra stuff to log messages
 date_echo(){
     datestamp=$(date +%F_%T)
@@ -21,5 +23,6 @@ if [ $POLL_RUNNING -gt "0" ]; then
   date_echo "poll-dhcp-changes already running."
 else
   date_echo "starting poll-dhcp-changes"
-  /volume1/homes/admin/poll-dhcp-changes.sh >> /volume1/homes/admin/logs/dhcp-dns.log 2>&1 
+  mkdir -p $LOG_DIR
+  $SCRIPT_DIR/poll-dhcp-changes.sh >> $LOG_DIR/dhcp-dns.log 2>&1 
 fi
