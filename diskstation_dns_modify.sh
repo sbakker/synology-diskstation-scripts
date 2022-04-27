@@ -236,11 +236,17 @@ chmod 644 $BackupPath/$ForwardMasterFile.bumped \
 #cp -a $BackupPath/$ForwardMasterFile.new $ZonePath/$ForwardMasterFile
 #cp -a $BackupPath/$ReverseMasterFile.new $ZonePath/$ReverseMasterFile
 
+date_echo "Changes to $ZonePath/$ForwardMasterFile:"
+diff -w -u $ZonePath/$ForwardMasterFile $BackupPath/$ForwardMasterFile.bumped
 mv -f $BackupPath/$ForwardMasterFile.bumped $ZonePath/$ForwardMasterFile
+
+date_echo "Changes to $ZonePath/$ReverseMasterFile:"
+diff -w -u $ZonePath/$ReverseMasterFile $BackupPath/$ReverseMasterFile.bumped
 mv -f $BackupPath/$ReverseMasterFile.bumped $ZonePath/$ReverseMasterFile
 
 ##########################################################################
 # Reload the server config after modifications
+date_echo "Reloading DNS server."
 $ZoneRootDir/script/reload.sh
 
 date_echo "$0 complete."
